@@ -1,12 +1,14 @@
+package app;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ChatbotGUI {
+public class ChatbotApp {
     private ChatbotController controller;
 
-    public ChatbotGUI() {
+    public ChatbotApp() {
         this.controller = new ChatbotController();  
         createAndShowGUI();
     }
@@ -35,6 +37,7 @@ public class ChatbotGUI {
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setLineWrap(true);
         descriptionArea.setCaretPosition(0);
+        descriptionArea.setMargin(new Insets(10, 20, 10, 10));
         titlePanel.add(descriptionArea, BorderLayout.CENTER);
 
         frame.add(titlePanel, BorderLayout.NORTH); 
@@ -51,18 +54,18 @@ public class ChatbotGUI {
         JScrollPane scrollPane = new JScrollPane(textArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // Panneau pour l'entrée de texte et le bouton
+        // Panneau entrée de texte et bouton
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        // Champ de texte pour que l'utilisateur tape sa question
+        // Champ de texte pour la question
         JTextField inputField = new JTextField();
         inputField.setFont(new Font("Arial", Font.PLAIN, 16));
         inputField.setBackground(new Color(255, 255, 255));
         inputField.setForeground(new Color(0, 0, 0));
         panel.add(inputField, BorderLayout.CENTER);
 
-        // Bouton pour envoyer le message
+        // Bouton 
         JButton sendButton = new JButton("Envoyer");
         sendButton.setFont(new Font("Arial", Font.BOLD, 16));
         sendButton.setBackground(new Color(70, 130, 180)); // Couleur bleue
@@ -71,19 +74,19 @@ public class ChatbotGUI {
 
         frame.add(panel, BorderLayout.SOUTH);
 
-        // Fonctionnalité du bouton "Envoyer"
+        // Fonctionnalité "Envoyer"
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String userInput = inputField.getText();
                 if (!userInput.isEmpty()) {
-                    // Afficher la question de l'utilisateur dans la zone de texte
+                    // Affiche la question de l'utilisateur 
                     textArea.append("Vous: " + userInput + "\n");
 
-                    // Obtenir la réponse du chatbot via le contrôleur
+                    // Obtient la réponse du chatbot 
                     String botResponse = controller.processUserInput(userInput);
 
-                    // Afficher la réponse du chatbot avec un petit délai pour simuler la réflexion
+                    // Affiche la réponse (petit délai pour simuler la réflexion)
                     appendTextWithDelay(textArea, "Chatbot: " + botResponse + "\n", 1000);
 
                     // Effacer le champ de texte
@@ -92,7 +95,7 @@ public class ChatbotGUI {
             }
         });
 
-        // Permettre l'envoi du message avec la touche Entrée
+        // Envoi du message avec Entrée
         inputField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -100,19 +103,17 @@ public class ChatbotGUI {
             }
         });
 
-        // Afficher la fenêtre
         frame.setVisible(true);
     }
 
     
 
-    // Méthode pour ajouter du texte avec un délai simulé pour "réfléchir"
+    // Permet d'ajouter du texte avec un délai simulé 
     private void appendTextWithDelay(JTextArea textArea, String text, int delay) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // Simuler un délai pour l'animation de réflexion du chatbot
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -128,8 +129,9 @@ public class ChatbotGUI {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new ChatbotGUI();  // Crée l'interface graphique
+                new ChatbotApp();  
             }
         });
     }
 }
+

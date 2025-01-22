@@ -1,3 +1,5 @@
+package app;
+
 import java.time.LocalTime;
 
 public class Chatbot {
@@ -5,7 +7,7 @@ public class Chatbot {
         // Transformer en minuscule pour la cass
         userInput = userInput.toLowerCase();
 
-        // Récupérer l'heure actuelle pour personnaliser la réponse
+        // Heure actuelle pour personnaliser la réponse
         LocalTime now = LocalTime.now();
         String greeting = "Bonjour";
         
