@@ -9,20 +9,20 @@ public class Chatbot {
 
         // Heure actuelle pour personnaliser la réponse
         LocalTime now = LocalTime.now();
-        String greeting = "Bonjour";
+        String greeting = "Hello !";
         
         if (now.isAfter(LocalTime.of(18, 0))) {
-            greeting = "Bonsoir";
+            greeting = "Good evening !";
         }
 
-        // Réponses flexibles en utilisant "contains" pour des mots-clés
-        if (userInput.contains("bonjour") || userInput.contains("salut") || userInput.contains("hey") || userInput.contains("coucou")) {
-            return greeting + " ! Comment puis-je t'aider ?";
+        // Salutation
+        if (userInput.contains("hello") || userInput.contains("hi") || userInput.contains("good morning") ) {
+            return greeting + " How can I help you?";
         }
 
         //FAIRE LA LOGIQUE ML
 
         //TODO : a dégager
-        return "Désolé, je ne comprends pas bien. Peux-tu reformuler ?";
+        return "Sorry... I don't understand ";
     }
 }
