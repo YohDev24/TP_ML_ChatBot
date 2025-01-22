@@ -3,6 +3,13 @@ package app;
 import java.time.LocalTime;
 
 public class Chatbot {
+	/**
+	 * Génère une réponse en fonction de l'entrée utilisateur.
+	 * 
+	 * @param userInput La chaîne de texte saisie par l'utilisateur.
+	 * @return la réponse du chatbot
+	 */
+
     public String getResponse(String userInput) {
         // Transformer en minuscule pour la cass
         userInput = userInput.toLowerCase();
