@@ -138,10 +138,17 @@ public class ChatbotUI {
     /**
      * Configure l'action du bouton "Envoyer". Lorsqu'il est cliqué, le texte de l'utilisateur est affiché dans la zone de texte
      * et le chatbot simule un délai avant de répondre.
+     * 
+     * @param Jpanel
+     * @param JTextePane
      */
     private void setupSendButton(JPanel panel, JTextPane textPane) {
         JTextField inputField = (JTextField) panel.getComponent(0);
         JButton sendButton = (JButton) panel.getComponent(1);
+        
+        // Message d'accueil au démarrage
+        appendTextWithStyle(textPane, "Chatbot: Hello! I'm here to help you identify your symptoms. Just say 'hello' to get startedor.", false);
+
 
         sendButton.addActionListener(new ActionListener() {
             private boolean collectingSymptoms = false; // Indique si la collecte des symptômes est en cours
@@ -153,7 +160,7 @@ public class ChatbotUI {
                     appendTextWithStyle(textPane, "You: " + userInput, true);
                     inputField.setText("");
 
-                    new Timer(1000, new ActionListener() {
+                    new Timer(500, new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent evt) {
                             String botResponse;
@@ -169,11 +176,21 @@ public class ChatbotUI {
 
                             appendTextWithStyle(textPane, "Chatbot: " + botResponse, false);
 
-                            // Vérifier si la collecte est terminée
+                         // Vérifier si la collecte est terminée
                             if (collectingSymptoms && !controller.isCollectingSymptoms()) {
                                 collectingSymptoms = false; // Réinitialiser l'état après la collecte
-                            }
 
+                                // Ajouter le message de remerciement et de recommandation
+                                appendTextWithStyle(textPane, 
+                                    "Chatbot: Thank you for using our symptom checker! " +
+                                    "If your symptoms persist or worsen, please consult a doctor for a proper diagnosis.", 
+                                    false);
+
+                                // Désactiver l'input pour bloquer les messages supplémentaires
+                                inputField.setEditable(false);
+                                sendButton.setEnabled(false);
+                            }
+                            
                             ((Timer) evt.getSource()).stop();
                         }
                     }).start();
@@ -181,47 +198,6 @@ public class ChatbotUI {
             }
         });
     }
-
-
-
-
-    private void collectSymptoms(JTextPane textPane, JTextField inputField, JButton sendButton) {
-        ChatbotController controller = new ChatbotController(); // Utilisation du contrôleur
-
-        // Lancer la collecte des symptômes
-        appendTextWithStyle(textPane, "Chatbot: " + controller.startSymptomCollection(), false);
-
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String userInput = inputField.getText().trim();
-                if (!userInput.isEmpty()) {
-                    // Afficher la réponse de l'utilisateur
-                    appendTextWithStyle(textPane, "You: " + userInput, true);
-
-                    // Obtenir la réponse du contrôleur pour la collecte des symptômes
-                    String response = controller.processSymptomResponse(userInput);
-
-                    // Afficher la réponse du chatbot via le contrôleur
-                    appendTextWithStyle(textPane, "Chatbot: " + response, false);
-                    inputField.setText("");
-
-                    // Vérifier si la collecte est terminée
-                    if (!controller.isCollectingSymptoms()) {
-                        // Nettoyer les écouteurs pour éviter des doublons
-                        for (ActionListener al : sendButton.getActionListeners()) {
-                            sendButton.removeActionListener(al);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-
-
-
-
 
     /**
      * Configure l'action de la touche "Entrée". Lorsqu'on appuie sur la touche Entrée, le bouton "Envoyer" est déclenché pour envoyer le message
@@ -244,7 +220,6 @@ public class ChatbotUI {
      * 
      * @param panel => panneau contenant le champ de texte.
      */
-
     private void setInitialFocus(JPanel panel) {
         JTextField inputField = (JTextField) panel.getComponent(0);
         inputField.requestFocusInWindow();
@@ -258,7 +233,6 @@ public class ChatbotUI {
      * @param text => texte à ajouter à la zone de texte.
      * @param isUser => Indique si le texte provient de l'utilisateur (true) ou du chatbot (false).
      */
-
     private void appendTextWithStyle(JTextPane textPane, String text, boolean isUser) {
         StyledDocument doc = textPane.getStyledDocument();
         SimpleAttributeSet attrs = new SimpleAttributeSet();
@@ -271,7 +245,7 @@ public class ChatbotUI {
         // Appliquer le style et ajouter le texte
         try {
             doc.setParagraphAttributes(doc.getLength(), text.length(), attrs, false);
-            doc.insertString(doc.getLength(), text + "\n\n", attrs);
+            doc.insertString(doc.getLength(), text + "\n", attrs);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
