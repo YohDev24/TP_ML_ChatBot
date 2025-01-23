@@ -1,6 +1,8 @@
 package app;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -134,10 +136,8 @@ public class ChatbotUI {
     }
 
     /**
-     * Configure l'action du bouton "Envoyer". Lorsqu'il est cliqué, le texte de l'utilisateur est affiché dans la zone de texte et le chatbot simule un délai avant de répondre.
-     * 
-     * @param panel => panneau contenant le champ de texte et le bouton d'envoi.
-     * @param textPane => zone de texte où la conversation est affichée.
+     * Configure l'action du bouton "Envoyer". Lorsqu'il est cliqué, le texte de l'utilisateur est affiché dans la zone de texte
+     * et le chatbot simule un délai avant de répondre.
      */
     private void setupSendButton(JPanel panel, JTextPane textPane) {
         JTextField inputField = (JTextField) panel.getComponent(0);
@@ -146,25 +146,23 @@ public class ChatbotUI {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userInput = inputField.getText();
+                String userInput = inputField.getText().trim().toLowerCase();
                 if (!userInput.isEmpty()) {
-                    // Affiche la question de l'utilisateur
                     appendTextWithStyle(textPane, "You: " + userInput, true);
-
-                    // Efface le champ de texte
                     inputField.setText("");
 
-                    // Simuler un délai avant la réponse
-                    new Timer(1000, new ActionListener() { 
+                    new Timer(1000, new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent evt) {
-                            // Obtient la réponse du chatbot
                             String botResponse = controller.processUserInput(userInput);
 
-                            // Affiche la réponse
                             appendTextWithStyle(textPane, "Chatbot: " + botResponse, false);
 
-                            // Arrête le Timer 
+                            // Si l'utilisateur est malade, démarrer la collecte des symptômes
+                            if (botResponse.equals("Got it. Let's collect your symptoms.")) {
+                                collectSymptoms(textPane, inputField, sendButton);
+                            }
+
                             ((Timer) evt.getSource()).stop();
                         }
                     }).start();
@@ -172,6 +170,54 @@ public class ChatbotUI {
             }
         });
     }
+
+
+
+    private void collectSymptoms(JTextPane textPane, JTextField inputField, JButton sendButton) {
+        String[] symptoms = {"fatigue", "cough", "high_fever", "breathlessness", "sweating", "malaise"};
+        List<String> symptomsList = new ArrayList<>();
+        int[] symptomIndex = {0}; // Utilisation d'un tableau pour permettre la modification dans les listeners
+
+        // Afficher la première question
+        appendTextWithStyle(textPane, "Chatbot: Do you have " + symptoms[symptomIndex[0]] + "?", false);
+
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String userInput = inputField.getText().trim().toLowerCase();
+                if (!userInput.isEmpty()) {
+                    // Afficher la réponse de l'utilisateur
+                    appendTextWithStyle(textPane, "You: " + userInput, true);
+
+                    // Vérifier la réponse de l'utilisateur (yes/no)
+                    if (userInput.equals("yes")) {
+                        symptomsList.add(symptoms[symptomIndex[0]]);
+                    }
+
+                    symptomIndex[0]++;
+                    inputField.setText("");
+
+                    // Continuer à poser des questions ou terminer
+                    if (symptomIndex[0] < symptoms.length) {
+                        appendTextWithStyle(textPane, "Chatbot: Do you have " + symptoms[symptomIndex[0]] + "?", false);
+                    } else {
+                        // Afficher le résumé des symptômes
+                        appendTextWithStyle(textPane,
+                                "Chatbot: You mentioned the following symptoms: " +
+                                (symptomsList.isEmpty() ? "none" : String.join(", ", symptomsList)),
+                                false);
+
+                        // Nettoyer les écouteurs pour éviter d'empiler les actions
+                        for (ActionListener al : sendButton.getActionListeners()) {
+                            sendButton.removeActionListener(al);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
 
     /**
      * Configure l'action de la touche "Entrée". Lorsqu'on appuie sur la touche Entrée, le bouton "Envoyer" est déclenché pour envoyer le message
