@@ -8,33 +8,92 @@ import java.util.Map;
 public class Chatbot {
     private static final Map<String, String[]> CATEGORIES = new LinkedHashMap<>();
     static {
+        // General Symptoms
         CATEGORIES.put("General Symptoms", new String[]{
-                "Fever", "Chills", "Weight loss", "Fatigue", "Pain"
+            "Fever", "Chills", "Weight loss", "Fatigue", "Pain", 
+            "Malaise", "Sweating", "High fever", "Mild fever", 
+            "Restlessness", "Lethargy", "Toxic look (typhos)"
         });
-        CATEGORIES.put("Respiratory System", new String[]{
-            "Cough", "Shortness of breath", "Chest pain", "Phlegm", 
-            "Nasal congestion", "Loss of smell", "Wheezing"
+
+        // Respiratory System
+        CATEGORIES.put("Upper Respiratory System", new String[]{
+            "Nasal congestion", "Loss of smell", "Sinus pressure", 
+            "Runny nose", "Throat irritation", "Cough"
         });
-        CATEGORIES.put("Digestive System", new String[]{
-            "Nausea", "Vomiting", "Diarrhea", "Constipation", 
-            "Abdominal pain", "Loss of appetite", "Indigestion", "Heartburn"
+
+        CATEGORIES.put("Lower Respiratory System", new String[]{
+            "Shortness of breath", "Chest pain", "Phlegm", 
+            "Wheezing", "Rusty sputum", "Blood in sputum", 
+            "Mucoid sputum", "Breathlessness"
         });
-        CATEGORIES.put("Skin", new String[]{
-            "Itching", "Rash", "Redness", "Paleness", 
-            "Bruising", "Swelling", "Blisters"
+
+        // Digestive System
+        CATEGORIES.put("Upper Digestive System", new String[]{
+            "Nausea", "Vomiting", "Loss of appetite", "Heartburn", 
+            "Ulcers on tongue", "Acidity"
         });
+
+        CATEGORIES.put("Lower Digestive System", new String[]{
+            "Diarrhea", "Constipation", "Abdominal pain", 
+            "Belly pain", "Passage of gases", "Indigestion"
+        });
+
+        CATEGORIES.put("Severe Digestive Issues", new String[]{
+            "Stomach pain", "Stomach bleeding", "Stomach distention", 
+            "Internal itching", "Yellow urine", "Dark urine"
+        });
+
+        // Skin
+        CATEGORIES.put("Skin General", new String[]{
+            "Itching", "Skin rash", "Nodal skin eruptions", 
+            "Dischromic patches", "Redness", "Bruising", 
+            "Swelling", "Paleness"
+        });
+
+        CATEGORIES.put("Specific Skin Issues", new String[]{
+            "Blisters", "Red sore around nose", "Yellow crust ooze", 
+            "Skin peeling", "Silver like dusting", "Small dents in nails", 
+            "Inflammatory nails", "Pus filled pimples", "Blackheads", 
+            "Scurring"
+        });
+
+        // Urinary System
         CATEGORIES.put("Urinary System", new String[]{
             "Frequent urination", "Burning sensation when urinating", 
-            "Blood in urine", "Incontinence"
+            "Blood in urine", "Incontinence", "Spotting urination", 
+            "Bladder discomfort", "Foul smell of urine", 
+            "Continuous feel of urine", "Yellow urine", "Dark urine"
         });
-        CATEGORIES.put("Nervous System", new String[]{
+
+        // Nervous System
+        CATEGORIES.put("Common Neurological Symptoms", new String[]{
             "Headache", "Dizziness", "Fatigue", "Sleep disturbances", 
-            "Numbness", "Tingling", "Confusion"
+            "Confusion", "Depression", "Irritability", "Anxiety"
         });
-        CATEGORIES.put("Musculoskeletal System", new String[]{
-            "Joint pain", "Muscle pain", "Weakness", "Stiffness", "Swelling"
+
+        CATEGORIES.put("Motor and Sensory Issues", new String[]{
+            "Numbness", "Tingling", "Loss of balance", 
+            "Lack of concentration", "Visual disturbances"
+        });
+
+        CATEGORIES.put("Severe Neurological Issues", new String[]{
+            "Slurred speech", "Altered sensorium", 
+            "Spinning movements", "Unsteadiness"
+        });
+
+        // Musculoskeletal System
+        CATEGORIES.put("Pain and Stiffness", new String[]{
+            "Joint pain", "Back pain", "Neck pain", "Hip joint pain", 
+            "Knee pain", "Swelling joints", "Movement stiffness", 
+            "Painful walking"
+        });
+
+        CATEGORIES.put("Muscle Weakness", new String[]{
+            "Muscle pain", "Weakness in limbs", "Swelling", 
+            "Muscle wasting", "Muscle weakness"
         });
     }
+
 
     private final List<String> collectedSymptoms = new ArrayList<>();
     private List<String> categoryOrder; // Liste des catégories pour l'itération
