@@ -182,7 +182,7 @@ public class ChatbotUI {
 
                                 // Ajouter le message de remerciement et de recommandation
                                 appendTextWithStyle(textPane, 
-                                    "Chatbot: Thank you for using our symptom checker! " +
+                                    "\nThank you for using our symptom checker! " +
                                     "If your symptoms persist or worsen, please consult a doctor for a proper diagnosis.", 
                                     false);
 
