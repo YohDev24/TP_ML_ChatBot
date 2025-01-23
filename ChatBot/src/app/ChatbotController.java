@@ -1,27 +1,37 @@
 package app;
 
-/**
- * Contrôleur pour l'application Chatbot. 
- * Cette classe agit comme un intermédiaire entre l'interface utilisateur et le chatbot, 
- * en transmettant les entrées de l'utilisateur et en récupérant les réponses.
- */
-
 public class ChatbotController {
     private Chatbot chatbot;
-    
+
     public ChatbotController() {
         this.chatbot = new Chatbot();
     }
 
     /**
-     * Traite l'entrée utilisateur et obtient une réponse du chatbot.
+     * Initialise la collecte des symptômes.
+     * 
+     * @return La première question de la collecte des symptômes.
+     */
+    public String startSymptomCollection() {
+        return chatbot.startSymptomCollection();
+    }
+
+    /**
+     * Traite la réponse utilisateur pour la collecte des symptômes.
      * 
      * @param userInput => La chaîne de texte saisie par l'utilisateur.
-     * @return La réponse générée par le chatbot.
+     * @return La prochaine question ou le résumé des symptômes.
      */
+    public String processSymptomResponse(String userInput) {
+        return chatbot.processSymptomResponse(userInput);
+    }
 
-    public String processUserInput(String userInput) {
-        return chatbot.getResponse(userInput);
+    /**
+     * Vérifie si la collecte des symptômes est en cours.
+     * 
+     * @return true si la collecte est active, false sinon.
+     */
+    public boolean isCollectingSymptoms() {
+        return chatbot.isCollectingSymptoms();
     }
 }
-

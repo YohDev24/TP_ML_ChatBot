@@ -1,53 +1,133 @@
 package app;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chatbot {
-    
-    private static final String[] SYMPTOMS = {
-        "fatigue", "cough", "high_fever", "breathlessness", "sweating", "malaise"
-    };
-    private boolean userSick = false;  // Variable pour savoir si l'utilisateur est malade
+    private static final Map<String, String[]> CATEGORIES = new LinkedHashMap<>();
+    static {
+        CATEGORIES.put("General Symptoms", new String[]{
+                "Fever", "Chills", "Weight loss", "Fatigue", "Pain"
+        });
+        CATEGORIES.put("Respiratory System", new String[]{
+            "Cough", "Shortness of breath", "Chest pain", "Phlegm", 
+            "Nasal congestion", "Loss of smell", "Wheezing"
+        });
+        CATEGORIES.put("Digestive System", new String[]{
+            "Nausea", "Vomiting", "Diarrhea", "Constipation", 
+            "Abdominal pain", "Loss of appetite", "Indigestion", "Heartburn"
+        });
+        CATEGORIES.put("Skin", new String[]{
+            "Itching", "Rash", "Redness", "Paleness", 
+            "Bruising", "Swelling", "Blisters"
+        });
+        CATEGORIES.put("Urinary System", new String[]{
+            "Frequent urination", "Burning sensation when urinating", 
+            "Blood in urine", "Incontinence"
+        });
+        CATEGORIES.put("Nervous System", new String[]{
+            "Headache", "Dizziness", "Fatigue", "Sleep disturbances", 
+            "Numbness", "Tingling", "Confusion"
+        });
+        CATEGORIES.put("Musculoskeletal System", new String[]{
+            "Joint pain", "Muscle pain", "Weakness", "Stiffness", "Swelling"
+        });
+    }
+
+    private final List<String> collectedSymptoms = new ArrayList<>();
+    private List<String> categoryOrder; // Liste des catégories pour l'itération
+    private String currentCategory; // Catégorie en cours
+    private int categoryIndex = 0; // Index de la catégorie
+    private String[] currentSymptoms; // Symptômes de la catégorie actuelle
+    private int symptomIndex = 0; // Index du symptôme dans la catégorie actuelle
+    private boolean collectingSymptoms = false; // Si on collecte des symptômes pour une catégorie
 
     /**
-     * Génère une réponse en fonction de l'entrée utilisateur.
-     * 
-     * @param userInput La chaîne de texte saisie par l'utilisateur.
-     * @return la réponse du chatbot
+     * Lance la collecte des catégories.
+     *
+     * @return La première question concernant les catégories.
      */
-    public String getResponse(String userInput) {
-        userInput = userInput.toLowerCase();
-        
-        // Heure actuelle pour personnaliser la réponse
-        LocalTime now = LocalTime.now();
-        String greeting = "Hello!";
+    public String startSymptomCollection() {
+        categoryOrder = new ArrayList<>(CATEGORIES.keySet());
+        categoryIndex = 0;
+        symptomIndex = 0;
+        collectedSymptoms.clear();
+        currentCategory = null;
+        collectingSymptoms = false;
 
-        if (now.isAfter(LocalTime.of(18, 0))) {
-            greeting = "Good evening!";
-        }
+        return "Do you have symptoms related to " + categoryOrder.get(categoryIndex) + "? (yes/no)";
+    }
 
-        // Si l'utilisateur répond "yes" ou "no" à la question "Are you sick?"
-        if (!userSick && (userInput.contains("yes") || userInput.contains("no"))) {
-            if (userInput.contains("yes")) {
-                userSick = true;
-                return "Got it. Let's collect your symptoms.";
+    /**
+     * Traite la réponse utilisateur pour la collecte des catégories et symptômes.
+     *
+     * @param userInput Réponse utilisateur (yes/no).
+     * @return La prochaine question ou le résumé des symptômes collectés.
+     */
+    public String processSymptomResponse(String userInput) {
+        userInput = userInput.trim().toLowerCase();
+
+        // Vérifier si la réponse est valide
+        if (!userInput.equals("yes") && !userInput.equals("no")) {
+            if (collectingSymptoms) {
+                return "Please answer 'yes' or 'no'. Do you have " + currentSymptoms[symptomIndex] + "?";
             } else {
-                return "Okay. If you need help later, just let me know!";
+                return "Please answer 'yes' or 'no'. Do you have symptoms related to " + categoryOrder.get(categoryIndex) + "?";
             }
         }
 
-        // Si l'utilisateur est malade, proposer les symptômes
-        if (userSick) {
-            return "Let's check your symptoms. Please answer 'yes' or 'no'.";
+        // Si on est en train de collecter des symptômes
+        if (collectingSymptoms) {
+            if (userInput.equals("yes")) {
+                collectedSymptoms.add(currentSymptoms[symptomIndex]);
+            }
+            symptomIndex++;
+
+            // Passer au prochain symptôme ou retourner à la catégorie
+            if (symptomIndex < currentSymptoms.length) {
+                return "Do you have " + currentSymptoms[symptomIndex] + "? (yes/no)";
+            } else {
+                collectingSymptoms = false;
+                categoryIndex++;
+                return nextCategory();
+            }
         }
 
-        // Salutation de départ
-        if (userInput.contains("hello") || userInput.contains("hi") || userInput.contains("good morning")) {
-            return greeting + " Are you sick?";
+        // Si on est en train de collecter les catégories
+        if (userInput.equals("yes")) {
+            currentCategory = categoryOrder.get(categoryIndex);
+            currentSymptoms = CATEGORIES.get(currentCategory);
+            symptomIndex = 0;
+            collectingSymptoms = true;
+            return "Do you have " + currentSymptoms[symptomIndex] + "? (yes/no)";
+        } else {
+            categoryIndex++;
+            return nextCategory();
         }
+    }
 
-        return "Sorry... I don't understand.";
+    /**
+     * Passe à la prochaine catégorie ou termine la collecte.
+     *
+     * @return La prochaine question ou un résumé final.
+     */
+    private String nextCategory() {
+        if (categoryIndex < categoryOrder.size()) {
+            return "Do you have symptoms related to " + categoryOrder.get(categoryIndex) + "? (yes/no)";
+        } else {
+            return "You mentioned the following symptoms: " +
+                   (collectedSymptoms.isEmpty() ? "none" : String.join(", ", collectedSymptoms));
+        }
+    }
+
+    /**
+     * Vérifie si la collecte des symptômes est en cours.
+     *
+     * @return true si la collecte est active, false sinon.
+     */
+    public boolean isCollectingSymptoms() {
+        return categoryIndex < categoryOrder.size() || collectingSymptoms;
     }
 }

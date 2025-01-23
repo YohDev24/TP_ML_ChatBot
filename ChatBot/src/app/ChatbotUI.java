@@ -144,6 +144,8 @@ public class ChatbotUI {
         JButton sendButton = (JButton) panel.getComponent(1);
 
         sendButton.addActionListener(new ActionListener() {
+            private boolean collectingSymptoms = false; // Indique si la collecte des symptômes est en cours
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 String userInput = inputField.getText().trim().toLowerCase();
@@ -154,13 +156,22 @@ public class ChatbotUI {
                     new Timer(1000, new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent evt) {
-                            String botResponse = controller.processUserInput(userInput);
+                            String botResponse;
+
+                            if (!collectingSymptoms) {
+                                // Si on ne collecte pas encore les symptômes, traiter comme une interaction normale
+                                botResponse = controller.startSymptomCollection();
+                                collectingSymptoms = true;
+                            } else {
+                                // Si la collecte est en cours, traiter la réponse utilisateur
+                                botResponse = controller.processSymptomResponse(userInput);
+                            }
 
                             appendTextWithStyle(textPane, "Chatbot: " + botResponse, false);
 
-                            // Si l'utilisateur est malade, démarrer la collecte des symptômes
-                            if (botResponse.equals("Got it. Let's collect your symptoms.")) {
-                                collectSymptoms(textPane, inputField, sendButton);
+                            // Vérifier si la collecte est terminée
+                            if (collectingSymptoms && !controller.isCollectingSymptoms()) {
+                                collectingSymptoms = false; // Réinitialiser l'état après la collecte
                             }
 
                             ((Timer) evt.getSource()).stop();
@@ -173,41 +184,31 @@ public class ChatbotUI {
 
 
 
-    private void collectSymptoms(JTextPane textPane, JTextField inputField, JButton sendButton) {
-        String[] symptoms = {"fatigue", "cough", "high_fever", "breathlessness", "sweating", "malaise"};
-        List<String> symptomsList = new ArrayList<>();
-        int[] symptomIndex = {0}; // Utilisation d'un tableau pour permettre la modification dans les listeners
 
-        // Afficher la première question
-        appendTextWithStyle(textPane, "Chatbot: Do you have " + symptoms[symptomIndex[0]] + "?", false);
+    private void collectSymptoms(JTextPane textPane, JTextField inputField, JButton sendButton) {
+        ChatbotController controller = new ChatbotController(); // Utilisation du contrôleur
+
+        // Lancer la collecte des symptômes
+        appendTextWithStyle(textPane, "Chatbot: " + controller.startSymptomCollection(), false);
 
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userInput = inputField.getText().trim().toLowerCase();
+                String userInput = inputField.getText().trim();
                 if (!userInput.isEmpty()) {
                     // Afficher la réponse de l'utilisateur
                     appendTextWithStyle(textPane, "You: " + userInput, true);
 
-                    // Vérifier la réponse de l'utilisateur (yes/no)
-                    if (userInput.equals("yes")) {
-                        symptomsList.add(symptoms[symptomIndex[0]]);
-                    }
+                    // Obtenir la réponse du contrôleur pour la collecte des symptômes
+                    String response = controller.processSymptomResponse(userInput);
 
-                    symptomIndex[0]++;
+                    // Afficher la réponse du chatbot via le contrôleur
+                    appendTextWithStyle(textPane, "Chatbot: " + response, false);
                     inputField.setText("");
 
-                    // Continuer à poser des questions ou terminer
-                    if (symptomIndex[0] < symptoms.length) {
-                        appendTextWithStyle(textPane, "Chatbot: Do you have " + symptoms[symptomIndex[0]] + "?", false);
-                    } else {
-                        // Afficher le résumé des symptômes
-                        appendTextWithStyle(textPane,
-                                "Chatbot: You mentioned the following symptoms: " +
-                                (symptomsList.isEmpty() ? "none" : String.join(", ", symptomsList)),
-                                false);
-
-                        // Nettoyer les écouteurs pour éviter d'empiler les actions
+                    // Vérifier si la collecte est terminée
+                    if (!controller.isCollectingSymptoms()) {
+                        // Nettoyer les écouteurs pour éviter des doublons
                         for (ActionListener al : sendButton.getActionListeners()) {
                             sendButton.removeActionListener(al);
                         }
@@ -216,6 +217,9 @@ public class ChatbotUI {
             }
         });
     }
+
+
+
 
 
 
